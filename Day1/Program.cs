@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace Day1
 {
@@ -9,11 +9,18 @@ namespace Day1
     {
         public static void Main( string[] args )
         {
-            var list = File.ReadAllLines("input1.txt");
-            foreach (var l in list)
+            var list = File.ReadAllLines("input1.txt")
+                            .Select(double.Parse)
+                            .ToList();
+
+            var total = 0.0;
+
+            foreach (var ele in list)
             {
-                Console.WriteLine(l);  
+                total += Math.Floor(ele / 3) - 2;
             }
+
+            Console.WriteLine(total);
             
         }
     }

@@ -19,3 +19,10 @@ The Fuel Counter-Upper needs to know the total fuel requirement. To find it, ind
 
 What is the sum of the fuel requirements for all of the modules on your spacecraft?
 
+
+## Notes
+total = 0
+Foreach n
+total += Math.round(n / 3) - 2;
+
+ret total
