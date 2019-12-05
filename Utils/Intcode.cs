@@ -22,6 +22,10 @@ namespace Utils
            array[z] = array[x] * array[y]
         */
 
+        // Address of current instruction is called the instruction pointer. (starts at 0)
+        // Instructions can have different sizes of instructions, (some need 3 array some take 5 etc)
+        // 
+
         public static List<int> Compute(List<int> input)
         {
             for (var i = 0; i < input.Count; i += 4)
