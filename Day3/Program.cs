@@ -23,18 +23,21 @@ namespace Day3
             // Find which points are in both
             var common = points1.Intersect(points2);
 
-            // Print the closest to zero point in both
-            var closest = common.Select(p => p.DistanceTo(new Point(0, 0)))
-                                .Min();
+            // Print the first intersection with least steps point in both
+            var closest = common
+                            .Select(p => points1.FindIndex(i => i.Equals(p)) + points2.FindIndex(i => i.Equals(p)))
+                            .Min();
+
+            closest += 2; // Take into account position 0 as a step for each wire
 
             Console.WriteLine(closest);
 
         }
 
-        static HashSet<Point> PointsHitByWire(IEnumerable<Instruction> wire)
+        static List<Point> PointsHitByWire(IEnumerable<Instruction> wire)
         {
             var position = new Point(0, 0);
-            var points = new HashSet<Point>();
+            var points = new List<Point>();
 
             foreach (var i in wire)
             {
@@ -61,7 +64,7 @@ namespace Day3
             return points;
         }
 
-        static void AddPointsInDirection(ref Point position, Point direction, int amount, ISet<Point> points)
+        static void AddPointsInDirection(ref Point position, Point direction, int amount, List<Point> points)
         {
             for (int i = 0; i < amount; i++)
             {
