@@ -10,27 +10,31 @@ namespace Day2
         {
             var input = File.ReadLines("input.txt").Single().Split(",").Select(int.Parse).ToList();
 
-            for (int i = 0; i < input.Count - 3; i+=4)
-            {
-                var op = input[i];
-                if (op == 99)
-                {
-                    return;
-                }
-
-                if (op == 1)
-                {
-                    // Add and put in 3rd
-                }
-
-                if (op == 2)
-                {
-                    // Multiply and put in 3rd
-                }
-
-            }
+            // Restore stuffs
+            input[1] = 12;
+            input[2] = 2;
             
-            Console.WriteLine(input);
+            for (var i = 0; i < input.Count - 3; i += 4)
+            {
+                switch (input[i])
+                {
+                    case 99:
+                        Console.WriteLine(input[0]);
+                        return;
+                    case 1:
+                        // Add and put in 3rd
+                        input[input[i + 3]] = input[input[i + 1]] + input[input[i + 2]];
+                        break;
+                    case 2:
+                        // Multiply and put in 3rd
+                        input[input[i + 3]] = input[input[i + 1]] * input[input[i + 2]];
+                        break;
+                    default:
+                        throw new ArgumentException($"{input[i]} is an invalid operation");
+                }
+            }
+
+            
         }
 
         /*
