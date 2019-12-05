@@ -24,9 +24,9 @@ namespace Day3
             var common = points1.Intersect(points2);
 
             // Print the first intersection with least steps point in both
-            var closest = common
-                            .Select(p => points1.FindIndex(i => i.Equals(p)) + points2.FindIndex(i => i.Equals(p)))
-                            .Min();
+            var closest = common.Select(p => points1.FindIndex(i => i.Equals(p)) + 
+                                             points2.FindIndex(i => i.Equals(p)))
+                                .Min();
 
             closest += 2; // Take into account position 0 as a step for each wire
 
