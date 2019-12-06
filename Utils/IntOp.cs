@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Utils
 {
-    class IntCodeOperation
+    class IntOp
     {
         public enum OpCode
         {
@@ -17,17 +17,27 @@ namespace Utils
         }
 
         public OpCode Code;
-        public ParamMode[] ParamModes;
+        private ParamMode[] ParamModes;
 
-        public IntCodeOperation(OpCode code, ParamMode[] paramModes)
+        public IntOp(OpCode code, ParamMode[] paramModes)
         {
             Code = code;
             ParamModes = paramModes;
         }
 
-        public static IntCodeOperation ParseFromString(string s)
+        public static IntOp ParseFromString(string s)
         {
             throw new NotImplementedException();
+        }
+
+        public ParamMode GetParamModeOf(int index)
+        {
+            if (index >= 0 && index < ParamModes.Length)
+            {
+                return ParamModes[index];
+            }
+
+            return ParamMode.Position;
         }
     }
 }
