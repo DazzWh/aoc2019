@@ -1,0 +1,45 @@
+﻿OpCodes:
+	99 = End program
+
+	1  = Add
+		array[1, x, y, z]
+		array[z] = array[x] + array[y]
+
+	2  = Multiply
+		array[1, x, y, z]
+		array[z] = array[x] * array[y]
+
+	3  = Input single integer
+		Take a single integer input, saves it to the position in the parameter
+			array[3, 50]
+			input => array[50] = input
+
+	4 = Output parameter value
+		array[4, 50]
+		Outputs array[50]       
+
+Parameter modes:
+
+	0 = Position mode
+		"which causes the parameter to be interpreted as a position -
+		if the parameter is 50, its value is the value stored at address 50 in memory."
+
+	1 = Immediate mode
+		"In immediate mode, a parameter is interpreted as a value - 
+		if the parameter is 50, its value is simply 50."
+
+Makeup of an instruction:
+	ABCDE
+	 1002
+
+	DE - two-digit opcode,      02 == opcode 2
+	 C - mode of 1st parameter,  0 == position mode
+	 B - mode of 2nd parameter,  1 == immediate mode
+	 A - mode of 3rd parameter,  0 == position mode,
+									  omitted due to being a leading zero
+        
+Further notes:
+	Address of current instruction is called the instruction pointer. (starts at 0)
+	Instructions can have different sizes of instructions, (some need 3 array some take 5 etc)
+
+	Parameters that an instruction writes to will never be in immediate mode.

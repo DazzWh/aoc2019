@@ -20,13 +20,6 @@ namespace Day4
                     !str.Zip(str.Skip(1), (a, b) => (a == b)).Any(x => x))
                     continue;
 
-                // Sequential numbers aren't grouped larger than their number
-                // [3,3] fine
-                // [3, 3, 3, 3] not fine
-                // ABOVE IS WRONG
-
-                // 
-
                 // It's friday morning after an xmas party, I'm going to write this horribly.
                 var num = -1; // Current number
                 var cons = 0; // Amount of current numbers that have been consecutively placed so far
