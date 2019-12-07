@@ -9,28 +9,77 @@ namespace Day7
     {
         static void Main(string[] args)
         {
-
             var largest = int.MinValue;
+            const string filename = "input.txt";
 
-            foreach (var arr in GetPermutations(new[] { 0, 1, 2, 3, 4 }, 5))
+            foreach (var seq in GetPermutations(new[] { 5, 6, 7, 8, 9 }, 5))
             {
+                var arr = seq.ToArray();
 
-                var cpu = new IntCodeComputer("input.txt") { OutputToConsole = false };
-                var nextInput = 0;
-                foreach (var i in arr)
+                var amps = new[]
                 {
-                    cpu.AddInputs(new[]{ i, nextInput });
-                    cpu.Run();
-                    nextInput = cpu.OutputLog.Single();
+                    new IntCodeComputer(filename) { OutputToConsole = false },
+                    new IntCodeComputer(filename) { OutputToConsole = false },
+                    new IntCodeComputer(filename) { OutputToConsole = false },
+                    new IntCodeComputer(filename) { OutputToConsole = false },
+                    new IntCodeComputer(filename) { OutputToConsole = false },
+                };
+
+                for (var i = 0; i < amps.Length; i++)
+                {
+                    amps[i].AddInputs(new []{ arr[i] });
+                    amps[i].Run(); // Run once with their amp number
                 }
+                
+                // Run amp A once with the input of 0
+                amps[0].AddInputs(new []{ 0 });
+                amps[0].Run();
 
-                if (nextInput > largest)
+                // Put the output of the first run into amp B
+                amps[1].AddInputs(new[] { int.Parse(amps[0].OutputLog.Single()) });
+
+                var output = 0;
+                var ampIdx = 1;
+                
+                // Generate the rest of the inputs
+                while (true)
                 {
-                    largest = nextInput;
+                    var amp = amps[ampIdx];
+
+                    amp.Run();
+                    
+                    if (ampIdx == arr.Length - 1 && amp.OutputLog.Count == 0)
+                    {
+                        if (largest < output)
+                        {
+                            largest = output;
+                        }
+                        break;
+                    }
+
+                    if (amp.OutputLog.Count == 0)
+                    {
+                        ampIdx++;
+                        ampIdx %= arr.Length;
+                        continue;
+                    }
+
+                    var nextInput = int.Parse(amp.OutputLog.Single());
+                    
+                    if (ampIdx == arr.Length - 1)
+                    {
+                        output = nextInput;
+                    }
+
+                    ampIdx++;
+                    ampIdx %= arr.Length;
+                    
+                    amps[ampIdx].AddInputs(new []{ nextInput });
+                    
                 }
             }
 
-            Console.WriteLine(largest);
+            Console.Out.WriteLine(largest);
         }
 
         // Thank you stack overflow

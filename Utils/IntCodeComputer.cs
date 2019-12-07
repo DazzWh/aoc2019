@@ -11,11 +11,11 @@ namespace Utils
         int position = 0; // Position of current operation
         private Stack<int> inputs; // Used for Input operation
         private List<int> program; // IntCode program that is being run
-        private bool running = false; // If the program is still running
+        private bool running; // If the program is still running
 
         public bool OutputToConsole = true; // Output writes directly to the console log if true
         public bool StopAtOutput = false;   // Stops the program at the first output
-        public List<int> OutputLog = new List<int>(); // Output logs output to this list
+        public List<string> OutputLog = new List<string>(); // Output logs output to this list
 
         public IntCodeComputer(string fileName)
         {
@@ -46,9 +46,8 @@ namespace Utils
 
         public void Run()
         {
-            position = 0;
             running = true;
-            OutputLog = new List<int>();
+            OutputLog = new List<string>();
 
             while (running)
             {
@@ -128,6 +127,13 @@ namespace Utils
 
         void Input(IntOp o)
         {
+            // If there is no inputs we need to wait until there is more
+            if (inputs.Count == 0)
+            {
+                running = false;
+                return;
+            }
+
             // Skip GetParam as input is always immediate mode
             program[program[position + 1]] = inputs.Pop();
             position += 2;
@@ -137,7 +143,7 @@ namespace Utils
         {
             var output = GetParam(1, o);
             
-            OutputLog.Add(output);
+            OutputLog.Add(output.ToString());
             if(OutputToConsole) Console.WriteLine(output);
 
             if (StopAtOutput) running = false;
