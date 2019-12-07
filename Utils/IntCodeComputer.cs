@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Utils
 {
@@ -7,24 +9,46 @@ namespace Utils
     {
 
         int position = 0; // Position of current operation
-        private int inputValue; // Used for Input operation
-        private List<int> program;
-        private bool running = false;
+        private Stack<int> inputs; // Used for Input operation
+        private List<int> program; // IntCode program that is being run
+        private bool running = false; // If the program is still running
 
-        public IntCodeComputer(List<int> initProgram)
+        public bool OutputToConsole = true; // Output writes directly to the console log if true
+        public bool StopAtOutput = false;   // Stops the program at the first output
+        public List<int> OutputLog = new List<int>(); // Output logs output to this list
+
+        public IntCodeComputer(string fileName)
         {
-            program = new List<int>(initProgram);
+            program = File.ReadLines(fileName).Single().Split(",").Select(int.Parse).ToList();
+        }
+        
+        public IntCodeComputer(string fileName, int[] inputsArray)
+        {
+            program = File.ReadLines(fileName).Single().Split(",").Select(int.Parse).ToList();
+            AddInputs(inputsArray);
         }
 
-        public IntCodeComputer(List<int> initProgram, int input)
+        public void AddInputs(int[] inputsArray)
         {
-            program = new List<int>(initProgram);
-            inputValue = input;
+            if (inputs == null)
+            {
+                inputs = new Stack<int>(inputsArray.Reverse());
+            }
+            else
+            {
+                foreach (var i in inputsArray.Reverse())
+                {
+                    inputs.Push(i);
+                }
+
+            }
         }
 
         public void Run()
         {
+            position = 0;
             running = true;
+            OutputLog = new List<int>();
 
             while (running)
             {
@@ -105,13 +129,19 @@ namespace Utils
         void Input(IntOp o)
         {
             // Skip GetParam as input is always immediate mode
-            program[program[position + 1]] = inputValue;
+            program[program[position + 1]] = inputs.Pop();
             position += 2;
         }
 
         void Output(IntOp o)
         {
-            Console.WriteLine(GetParam(1, o));
+            var output = GetParam(1, o);
+            
+            OutputLog.Add(output);
+            if(OutputToConsole) Console.WriteLine(output);
+
+            if (StopAtOutput) running = false;
+
             position += 2;
         }
 
