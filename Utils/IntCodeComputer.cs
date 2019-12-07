@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection.Emit;
-using System.Text;
 
 namespace Utils
 {
@@ -11,20 +9,30 @@ namespace Utils
         int position = 0; // Position of current operation
         private int inputValue; // Used for Input operation
         private List<int> program;
+        private bool running = false;
 
         public IntCodeComputer(List<int> initProgram)
         {
             program = new List<int>(initProgram);
         }
-        
+
+        public IntCodeComputer(List<int> initProgram, int input)
+        {
+            program = new List<int>(initProgram);
+            inputValue = input;
+        }
+
         public void Run()
         {
-            while (true)
+            running = true;
+
+            while (running)
             {
                 // Get the operation at the current position
                 var op = IntOp.ParseFromString(program[position].ToString());
 
                 // Call the relevant operation
+                // Operations move the position value
                 RunOperation(op);
             }
         }
@@ -34,15 +42,27 @@ namespace Utils
             switch (operation.Code)
             {
                 case IntOp.OpCode.Add:
-                    var a = GetValueAt(position + 1, operation.ParamModes[0]);
-                    // TODO Change functions to handle all this
-                    // Keep the switch statement as concise as possible.
+                    Add(operation);
+                    break;
 
+                case IntOp.OpCode.Multiply:
+                    Multiply(operation);
+                    break;
 
+                case IntOp.OpCode.Input:
+                    Input(operation);
+                    break;
+
+                case IntOp.OpCode.Output:
+                    Output(operation);
+                    break;
+
+                case IntOp.OpCode.End:
+                    running = false;
                     break;
 
                 default:
-                    break;
+                    throw new Exception("Invalid OpCode in operation");
             }
         }
 
@@ -63,24 +83,31 @@ namespace Utils
             }
         }
         
-        void Add(List<int> input, int a, int b, int pos)
+        void Add(IntOp o)
         {
-            input[pos] = a + b;
+            var a = GetValueAt(position + 1, o.GetMode(0));
+            var b = GetValueAt(position + 2, o.GetMode(0));
+            program[position + 3] = a + b;
+            position += 4;
         }
 
-        void Multiply(List<int> input, int a, int b, int pos)
+        void Multiply(IntOp o)
         {
-            input[pos] = a * b;
+            var a = GetValueAt(position + 1, o.GetMode(0));
+            var b = GetValueAt(position + 2, o.GetMode(0));
+            program[position + 3] = a * b;
+            position += 4;
         }
 
-        void Input(List<int> input, int inValue, int pos)
+        void Input(IntOp o)
         {
-            input[pos] = inValue;
+            program[position] = inputValue;
         }
 
-        void Output(List<int> input, int a)
+        void Output(IntOp o)
         {
-            Console.WriteLine(input[a]);
+            var output = GetValueAt(position + 1, o.GetMode(0));
+            Console.WriteLine(program[output]);
         }
 
     }

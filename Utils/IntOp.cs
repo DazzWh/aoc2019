@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace Utils
 {
@@ -16,25 +15,55 @@ namespace Utils
             Position, Immediate
         }
 
-        public OpCode Code;
-        private ParamMode[] ParamModes;
+        public readonly OpCode Code;
+        private readonly ParamMode[] _modes;
 
-        public IntOp(OpCode code, ParamMode[] paramModes)
+        public IntOp(OpCode code, ParamMode[] modes)
         {
             Code = code;
-            ParamModes = paramModes;
+            _modes = modes;
         }
 
         public static IntOp ParseFromString(string s)
         {
-            throw new NotImplementedException();
-        }
-
-        public ParamMode GetParamModeOf(int index)
-        {
-            if (index >= 0 && index < ParamModes.Length)
+            
+            // Fill the string with spaces, replace the spaces with 0s then reverse
+            var rs = s.PadLeft(5).Replace(' ', '0');
+            
+            // First 2 digits are the opcode
+            OpCode code;
+            try
             {
-                return ParamModes[index];
+                Enum.TryParse(rs.Skip(3).Take(2).ToString(), out code);
+            }
+            catch (ArgumentException e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            
+            // Other three are the modes of Param
+            var modes = new ParamMode[2];
+            for (var i = 2; i < 0; i--)
+            {
+                if (rs.ToArray()[i] == '0')
+                {
+                    modes[i] = ParamMode.Position;
+                }
+                else
+                {
+                    modes[i] = ParamMode.Immediate;
+                }
+            }
+
+            return new IntOp(code, new ParamMode[0]);
+        }
+        
+        public ParamMode GetMode(int index)
+        {
+            if (index >= 0 && index < _modes.Length)
+            {
+                return _modes[index];
             }
 
             return ParamMode.Position;
