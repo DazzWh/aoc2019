@@ -70,13 +70,14 @@ namespace Utils
         {
             switch (mode)
             {
+                case IntOp.ParamMode.Position:
+                    // Use the value in the position as a position for the return value
+                    var valueLocation = program[pos];
+                    return program[valueLocation];
+
                 case IntOp.ParamMode.Immediate:
                     // Return the value in the position
                     return program[pos];
-
-                case IntOp.ParamMode.Position:
-                    // Use the value in the position as a position for the return value 
-                    return program[program[pos]];
 
                 default:
                     throw new Exception("Invalid ParamMode");
@@ -86,28 +87,32 @@ namespace Utils
         void Add(IntOp o)
         {
             var a = GetValueAt(position + 1, o.GetMode(0));
-            var b = GetValueAt(position + 2, o.GetMode(0));
-            program[position + 3] = a + b;
+            var b = GetValueAt(position + 2, o.GetMode(1));
+            var p = GetValueAt(position + 3, IntOp.ParamMode.Immediate);
+            program[p] = a + b;
             position += 4;
         }
 
         void Multiply(IntOp o)
         {
             var a = GetValueAt(position + 1, o.GetMode(0));
-            var b = GetValueAt(position + 2, o.GetMode(0));
-            program[position + 3] = a * b;
+            var b = GetValueAt(position + 2, o.GetMode(1));
+            var p = GetValueAt(position + 3, IntOp.ParamMode.Immediate);
+            program[p] = a * b;
             position += 4;
         }
 
         void Input(IntOp o)
         {
-            program[position] = inputValue;
+            // Skip GetValueAt as input is always immediate mode
+            program[program[position + 1]] = inputValue;
+            position += 2;
         }
 
         void Output(IntOp o)
         {
-            var output = GetValueAt(position + 1, o.GetMode(0));
-            Console.WriteLine(program[output]);
+            Console.WriteLine(GetValueAt(position + 1, o.GetMode(0)));
+            position += 2;
         }
 
     }

@@ -7,7 +7,7 @@ namespace Utils
     {
         public enum OpCode
         {
-            Add, Multiply, Input, Output, End
+            Add = 1, Multiply = 2, Input = 3, Output = 4, End = 99
         }
 
         public enum ParamMode
@@ -28,25 +28,16 @@ namespace Utils
         {
             
             // Fill the string with spaces, replace the spaces with 0s then reverse
-            var rs = s.PadLeft(5).Replace(' ', '0');
+            s = s.PadLeft(5).Replace(' ', '0');
             
-            // First 2 digits are the opcode
-            OpCode code;
-            try
-            {
-                Enum.TryParse(rs.Skip(3).Take(2).ToString(), out code);
-            }
-            catch (ArgumentException e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-            
+            // Last digits are the opcode
+            OpCode code = (OpCode)int.Parse(s.Substring(3));
+
             // Other three are the modes of Param
-            var modes = new ParamMode[2];
-            for (var i = 2; i < 0; i--)
+            var modes = new ParamMode[]{0, 0, 0};
+            for (var i = 0; i < 3; i++)
             {
-                if (rs.ToArray()[i] == '0')
+                if (s.ToArray()[i] == '0')
                 {
                     modes[i] = ParamMode.Position;
                 }
@@ -56,7 +47,9 @@ namespace Utils
                 }
             }
 
-            return new IntOp(code, new ParamMode[0]);
+            modes = modes.Reverse().ToArray();
+
+            return new IntOp(code, modes);
         }
         
         public ParamMode GetMode(int index)
