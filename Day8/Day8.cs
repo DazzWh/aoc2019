@@ -1,29 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Day8
 {
-    class Day8
+    internal class Day8
     {
         private const int Wide = 25;
         private const int Tall = 6;
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var input = File.ReadLines("input.txt").Single();
             var layered = SplitIntoLayers(input, Wide, Tall);
+
+            var layer = GetLayerWithFewestZeros(layered);
+            OutputPart1(layer);
+
             var image = CreateImageFromLayers(layered);
             PrintLayer(image);
-
-            //var layer = GetLayerWithFewestZeros(layered);
-            //OutputPart1(layer);
         }
 
-        private static List<string> CreateImageFromLayers(List<List<string>> layered)
+        private static List<string> CreateImageFromLayers(IReadOnlyCollection<List<string>> layered)
         {
             // 0 = black
             // 1 = white
@@ -38,17 +37,14 @@ namespace Day8
                 for (var x = 0; x < Wide; x++)
                 {
                     // Go down through each layer at each point and find the first non 2 value
-                    for (int z = 0; z < layered.Count; z++)
+                    foreach (var layer in layered)
                     {
-                        var pixel = layered[z][y][x];
-                        if (!pixel.Equals('2'))
-                        {
-                            if (pixel.Equals('0')) pixel = ' '; // Change 0 to spaces for readability of the message
+                        var pixel = layer[y][x];
+                        if (pixel.Equals('2')) continue;
+                        if (pixel.Equals('0')) pixel = ' '; // Change 0 to spaces for readability of the message
 
-                            row += pixel;
-
-                            break;
-                        }
+                        row += pixel;
+                        break;
                     }
                 }
                 image.Add(row);
@@ -100,24 +96,17 @@ namespace Day8
             return layered;
         }
 
-        private static List<string> GetLayerWithFewestZeros(List<List<string>> layers)
+        private static IEnumerable<string> GetLayerWithFewestZeros(IReadOnlyList<List<string>> layers)
         {
             var lowest = new List<string>(layers[0]);
             var lowCount = int.MaxValue;
             foreach (var layer in layers)
             {
-                var count = 0;
+                var count = layer.Sum(row => row.Count(x => x == '0'));
 
-                foreach (var row in layer)
-                {
-                    count += row.Count(x => x == '0');
-                }
-                
-                if (count < lowCount)
-                {
-                    lowCount = count;
-                    lowest = layer;
-                }
+                if (count >= lowCount) continue;
+                lowCount = count;
+                lowest = layer;
             }
 
             return lowest;
