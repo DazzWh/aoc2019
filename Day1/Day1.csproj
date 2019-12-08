@@ -6,10 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Utils\IntCode.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="input1.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
