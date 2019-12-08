@@ -3,56 +3,55 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Utils
+namespace IntCode
 {
-    public class IntCodeComputer
+    public class Computer
     {
 
-        int position = 0; // Position of current operation
-        private Stack<int> inputs; // Used for Input operation
-        private List<int> program; // IntCode program that is being run
-        private bool running; // If the program is still running
+        private int _pointer; // Position of current operation
+        private Stack<int> _inputs; // Used for Input operation
+        private readonly int[] _memory; // IntCode program that is being run
+        private bool _running; // If the program is still running
 
         public bool OutputToConsole = true; // Output writes directly to the console log if true
         public bool StopAtOutput = false;   // Stops the program at the first output
-        public List<string> OutputLog = new List<string>(); // Output logs output to this list
+        public List<string> OutputLog { get; private set; } // Output logs output to this list
 
-        public IntCodeComputer(string fileName)
+        public Computer(string fileName)
         {
-            program = File.ReadLines(fileName).Single().Split(",").Select(int.Parse).ToList();
+            _memory = File.ReadLines(fileName).Single().Split(",").Select(int.Parse).ToArray();
         }
         
-        public IntCodeComputer(string fileName, int[] inputsArray)
+        public Computer(string fileName, int[] inputsArray)
         {
-            program = File.ReadLines(fileName).Single().Split(",").Select(int.Parse).ToList();
+            _memory = File.ReadLines(fileName).Single().Split(",").Select(int.Parse).ToArray();
             AddInputs(inputsArray);
         }
 
         public void AddInputs(int[] inputsArray)
         {
-            if (inputs == null)
+            if (_inputs == null)
             {
-                inputs = new Stack<int>(inputsArray.Reverse());
+                _inputs = new Stack<int>(inputsArray.Reverse());
             }
             else
             {
                 foreach (var i in inputsArray.Reverse())
                 {
-                    inputs.Push(i);
+                    _inputs.Push(i);
                 }
-
             }
         }
 
         public void Run()
         {
-            running = true;
+            _running = true;
             OutputLog = new List<string>();
 
-            while (running)
+            while (_running)
             {
                 // Get the operation at the current position
-                var op = IntOp.ParseFromString(program[position].ToString());
+                var op = IntOp.ParseFromString(_memory[_pointer].ToString());
 
                 // Call the relevant operation
                 // Operations move the position value
@@ -60,98 +59,98 @@ namespace Utils
             }
         }
 
-        void RunOperation(IntOp operation)
+        private void RunOperation(IntOp operation)
         {
             switch (operation.Code)
             {
                 case IntOp.OpCode.Add: Add(operation); break;
                 case IntOp.OpCode.Multiply: Multiply(operation); break;
-                case IntOp.OpCode.Input: Input(operation); break;
+                case IntOp.OpCode.Input: Input(); break;
                 case IntOp.OpCode.Output: Output(operation); break;
                 case IntOp.OpCode.JumpIfTrue: JumpIfTrue(operation); break;
                 case IntOp.OpCode.JumpIfFalse: JumpIfFalse(operation); break;
                 case IntOp.OpCode.LessThan: LessThan(operation); break;
                 case IntOp.OpCode.Equals: Equals(operation); break;
-                case IntOp.OpCode.End: running = false; break;
+                case IntOp.OpCode.End: _running = false; break;
 
                 default:
                     throw new Exception("Invalid OpCode in operation");
             }
         }
 
-        int GetParam(int i, IntOp o)
+        private int GetParam(int i, IntOp o)
         {
-            return GetValueAt(position + i, o.GetMode(i - 1));
+            return GetValueAt(_pointer + i, o.GetMode(i - 1));
         }
 
-        int GetParam(int i, IntOp.ParamMode mode)
+        private int GetParam(int i, IntOp.ParamMode mode)
         {
-            return GetValueAt(position + i, mode);
+            return GetValueAt(_pointer + i, mode);
         }
 
-        int GetValueAt(int pos, IntOp.ParamMode mode)
+        private int GetValueAt(int pos, IntOp.ParamMode mode)
         {
             switch (mode)
             {
                 case IntOp.ParamMode.Position:
                     // Use the value in the position as a position for the return value
-                    var valueLocation = program[pos];
-                    return program[valueLocation];
+                    var valueLocation = _memory[pos];
+                    return _memory[valueLocation];
 
                 case IntOp.ParamMode.Immediate:
                     // Return the value in the position
-                    return program[pos];
+                    return _memory[pos];
 
                 default:
                     throw new Exception("Invalid ParamMode");
             }
         }
-        
-        void Add(IntOp o)
+
+        private void Add(IntOp o)
         {
             var a = GetParam(1, o);
             var b = GetParam(2, o);
             var p = GetParam(3, IntOp.ParamMode.Immediate);
-            program[p] = a + b;
-            position += 4;
+            _memory[p] = a + b;
+            _pointer += 4;
         }
 
-        void Multiply(IntOp o)
+        private void Multiply(IntOp o)
         {
             var a = GetParam(1, o);
             var b = GetParam(2, o);
             var p = GetParam(3, IntOp.ParamMode.Immediate);
-            program[p] = a * b;
-            position += 4;
+            _memory[p] = a * b;
+            _pointer += 4;
         }
 
-        void Input(IntOp o)
+        private void Input()
         {
             // If there is no inputs we need to wait until there is more
-            if (inputs.Count == 0)
+            if (_inputs.Count == 0)
             {
-                running = false;
+                _running = false;
                 return;
             }
 
             // Skip GetParam as input is always immediate mode
-            program[program[position + 1]] = inputs.Pop();
-            position += 2;
+            _memory[_memory[_pointer + 1]] = _inputs.Pop();
+            _pointer += 2;
         }
 
-        void Output(IntOp o)
+        private void Output(IntOp o)
         {
             var output = GetParam(1, o);
             
             OutputLog.Add(output.ToString());
             if(OutputToConsole) Console.WriteLine(output);
 
-            if (StopAtOutput) running = false;
+            if (StopAtOutput) _running = false;
 
-            position += 2;
+            _pointer += 2;
         }
 
-        void JumpIfTrue(IntOp o)
+        private void JumpIfTrue(IntOp o)
         {
             // If a is true, set position to b
             var a = GetParam(1, o);
@@ -159,15 +158,15 @@ namespace Utils
 
             if (a != 0)
             {
-                position = b;
+                _pointer = b;
             }
             else
             {
-                position += 3;
+                _pointer += 3;
             }
         }
 
-        void JumpIfFalse(IntOp o)
+        private void JumpIfFalse(IntOp o)
         {
             // If a is false, set position to b
             var a = GetParam(1, o);
@@ -175,34 +174,34 @@ namespace Utils
 
             if (a == 0)
             {
-                position = b;
+                _pointer = b;
             }
             else
             {
-                position += 3;
+                _pointer += 3;
             }
         }
 
-        void LessThan(IntOp o)
+        private void LessThan(IntOp o)
         {
             var a = GetParam(1, o);
             var b = GetParam(2, o);
             var p = GetParam(3, IntOp.ParamMode.Immediate);
 
-            program[p] = a < b ? 1 : 0;
+            _memory[p] = a < b ? 1 : 0;
 
-            position += 4;
+            _pointer += 4;
         }
 
-        void Equals(IntOp o)
+        private void Equals(IntOp o)
         {
             var a = GetParam(1, o);
             var b = GetParam(2, o);
             var p = GetParam(3, IntOp.ParamMode.Immediate);
 
-            program[p] = a == b ? 1 : 0;
+            _memory[p] = a == b ? 1 : 0;
 
-            position += 4;
+            _pointer += 4;
         }
     }
 }

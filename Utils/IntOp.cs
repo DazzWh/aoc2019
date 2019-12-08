@@ -1,9 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 
-namespace Utils
+namespace IntCode
 {
-    class IntOp
+    internal class IntOp
     {
         public enum OpCode
         {
@@ -34,14 +33,16 @@ namespace Utils
 
         public static IntOp ParseFromString(string s)
         {
-            
-            // Fill the string with spaces, replace the spaces with 0s then reverse
+            // An IntOp comes in the form of 5 digits
+            // ABCDE A B C are parameter modes, DE is the double digit operation code
+
+            // Enter out any omitted 0s 
             s = s.PadLeft(5).Replace(' ', '0');
             
-            // Last digits are the opcode
-            OpCode code = (OpCode)int.Parse(s.Substring(3));
+            // Get digits DE as the OpCode
+            var code = (OpCode)int.Parse(s.Substring(3));
 
-            // Other three are the modes of Param
+            // Get digits ABC as ParamModes
             var modes = new ParamMode[]{0, 0, 0};
             for (var i = 0; i < 3; i++)
             {
@@ -55,6 +56,8 @@ namespace Utils
                 }
             }
 
+            // ABC are read right to left, to correspond to 
+            // A being param 0, reverse array.
             modes = modes.Reverse().ToArray();
 
             return new IntOp(code, modes);

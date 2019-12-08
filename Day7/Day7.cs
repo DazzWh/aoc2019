@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Utils;
+using IntCode;
 
 namespace Day7
 {
@@ -18,11 +18,11 @@ namespace Day7
 
                 var amps = new[]
                 {
-                    new IntCodeComputer(filename) { OutputToConsole = false },
-                    new IntCodeComputer(filename) { OutputToConsole = false },
-                    new IntCodeComputer(filename) { OutputToConsole = false },
-                    new IntCodeComputer(filename) { OutputToConsole = false },
-                    new IntCodeComputer(filename) { OutputToConsole = false },
+                    new Computer(filename) { OutputToConsole = false },
+                    new Computer(filename) { OutputToConsole = false },
+                    new Computer(filename) { OutputToConsole = false },
+                    new Computer(filename) { OutputToConsole = false },
+                    new Computer(filename) { OutputToConsole = false },
                 };
 
                 for (var i = 0; i < amps.Length; i++)
