@@ -1,19 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Day8
 {
     class Day8
     {
+        private const int Wide = 25;
+        private const int Tall = 6;
+
         static void Main(string[] args)
         {
             var input = File.ReadLines("input.txt").Single();
-            var layered = SplitIntoLayers(input, 25, 6);
-            var layer = GetLayerWithFewestZeros(layered);
+            var layered = SplitIntoLayers(input, Wide, Tall);
+            var image = CreateImageFromLayers(layered);
+            PrintLayer(image);
 
-            OutputPart1(layer);
+            //var layer = GetLayerWithFewestZeros(layered);
+            //OutputPart1(layer);
+        }
+
+        private static List<string> CreateImageFromLayers(List<List<string>> layered)
+        {
+            // 0 = black
+            // 1 = white
+            // 2 = transparent
+            // So get the top non transparent number in each cell and make a layer from that.
+
+            var image = new List<string>();
+
+            for (var y = 0; y < Tall; y++)
+            {
+                var row = "";
+                for (var x = 0; x < Wide; x++)
+                {
+                    // Go down through each layer at each point and find the first non 2 value
+                    for (int z = 0; z < layered.Count; z++)
+                    {
+                        var pixel = layered[z][y][x];
+                        if (!pixel.Equals('2'))
+                        {
+                            if (pixel.Equals('0')) pixel = ' '; // Change 0 to spaces for readability of the message
+
+                            row += pixel;
+
+                            break;
+                        }
+                    }
+                }
+                image.Add(row);
+            }
+
+            return image;
         }
 
         private static void OutputPart1(IEnumerable<string> layer)
@@ -92,6 +133,11 @@ namespace Day8
                     Console.Out.WriteLine(row);
                 }
             }
+        }
+
+        private static void PrintLayer(List<string> layer)
+        {
+            PrintLayers(new List<List<string>> { layer });
         }
     }
 }
