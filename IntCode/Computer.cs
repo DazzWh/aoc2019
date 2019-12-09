@@ -93,17 +93,11 @@ namespace IntCode
             }
         }
 
-        private long GetParam(int i, IntOp o, bool isForInput = false)
+        private long GetParam(int i, IntOp o)
         {
             var mode = o.GetMode(i - 1);
 
-            // When getting a position for input, ParamMode.Position
-            // Is invalid and should default to ParamMode.Immediate
-            if (isForInput && mode.Equals(IntOp.ParamMode.Position))
-            {
-                mode = IntOp.ParamMode.Immediate;
-            }
-
+            // If you want the value, just return the value at position 
             return GetValueAt(_pointer + i, mode);
         }
 
@@ -140,16 +134,23 @@ namespace IntCode
             return _memory.TryGetValue(position, out var value) ? value : 0;
         }
 
+        private void SetMemoryValueAtParam(int i, IntOp o, long value)
+        {
+            var p = GetMemoryAtLocation(_pointer + i);
+            if (o.GetMode(i - 1).Equals(IntOp.ParamMode.Relative))
+            {
+                p += _relativeBase;
+            }
+
+            _memory[p] = value;
+        }
+
         private void Add(IntOp o)
         {
             var a = GetParam(1, o);
             var b = GetParam(2, o);
-            var p = GetMemoryAtLocation(_pointer + 3);
-            if(o.GetMode(2).Equals(IntOp.ParamMode.Relative))
-            {
-                p += _relativeBase;
-            }
-            _memory[p] = a + b;
+            SetMemoryValueAtParam(3, o, a + b);
+
             _pointer += 4;
         }
 
@@ -157,14 +158,8 @@ namespace IntCode
         {
             var a = GetParam(1, o);
             var b = GetParam(2, o);
+            SetMemoryValueAtParam(3, o, a * b);
 
-            var p = GetMemoryAtLocation(_pointer + 3);
-            if(o.GetMode(2).Equals(IntOp.ParamMode.Relative))
-            {
-                p += _relativeBase;
-            }
-
-            _memory[p] = a * b;
             _pointer += 4;
         }
 
@@ -177,14 +172,7 @@ namespace IntCode
                 return;
             }
 
-            var p = GetMemoryAtLocation(_pointer + 1);
-            if(o.GetMode(0).Equals(IntOp.ParamMode.Relative))
-            {
-                p += _relativeBase;
-            }
-
-
-            _memory[p] = _inputs.Pop();
+            SetMemoryValueAtParam(3, o, _inputs.Pop());
             _pointer += 2;
         }
 
@@ -236,14 +224,7 @@ namespace IntCode
         {
             var a = GetParam(1, o);
             var b = GetParam(2, o);
-
-            var p = GetMemoryAtLocation(_pointer + 3);
-            if(o.GetMode(2).Equals(IntOp.ParamMode.Relative))
-            {
-                p += _relativeBase;
-            }
-
-            _memory[p] = a < b ? 1 : 0;
+            SetMemoryValueAtParam(3, o, a < b ? 1 : 0);
 
             _pointer += 4;
         }
@@ -252,13 +233,7 @@ namespace IntCode
         {
             var a = GetParam(1, o);
             var b = GetParam(2, o);
-            var p = GetMemoryAtLocation(_pointer + 3);
-            if(o.GetMode(2).Equals(IntOp.ParamMode.Relative))
-            {
-                p += _relativeBase;
-            }
-
-            _memory[p] = a == b ? 1 : 0;
+            SetMemoryValueAtParam(3, o,a == b ? 1 : 0);
 
             _pointer += 4;
         }
