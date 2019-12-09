@@ -16,7 +16,7 @@ namespace Day7
 
             foreach (var seq in GetPermutations(new[] { 5, 6, 7, 8, 9 }, 5))
             {
-                var arr = seq.ToArray();
+                var arr = seq.Select(x => (long)x).ToArray();
 
                 var amps = new[]
                 {
@@ -34,11 +34,11 @@ namespace Day7
                 }
                 
                 // Run amp A once with the input of 0
-                amps[0].AddInputs(new []{ 0 });
+                amps[0].AddInputs(new long[]{ 0 });
                 amps[0].Run();
 
                 // Put the output of the first run into amp B
-                amps[1].AddInputs(new[] { int.Parse(amps[0].OutputLog.Single()) });
+                amps[1].AddInputs(new long[] { int.Parse(amps[0].OutputLog.Single()) });
 
                 var output = 0;
                 var ampIdx = 1;
@@ -76,7 +76,7 @@ namespace Day7
                     ampIdx++;
                     ampIdx %= arr.Length;
                     
-                    amps[ampIdx].AddInputs(new []{ nextInput });
+                    amps[ampIdx].AddInputs(new long[]{ nextInput });
                     
                 }
             }

@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Day8", "Day8\Day8.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntCode", "IntCode\IntCode.csproj", "{D16A4ABC-91F8-4D26-B85F-86B5EEDEB45A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Day9", "Day9\Day9.csproj", "{7C088F2A-98CE-420B-BA82-32958ADB2612}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Day9", "Day9\Day9.csproj", "{7C088F2A-98CE-420B-BA82-32958ADB2612}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

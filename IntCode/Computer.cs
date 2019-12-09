@@ -58,6 +58,11 @@ namespace IntCode
                 // Get the operation at the current position
                 var op = IntOp.ParseFromString(_memory[_pointer].ToString());
 
+                if (_memory[_pointer].ToString() == "1102")
+                {
+
+                }
+
                 // Call the relevant operation
                 // Operations move the position value
                 RunOperation(op);
@@ -88,9 +93,18 @@ namespace IntCode
             }
         }
 
-        private long GetParam(int i, IntOp o)
+        private long GetParam(int i, IntOp o, bool isForInput = false)
         {
-            return GetValueAt(_pointer + i, o.GetMode(i - 1));
+            var mode = o.GetMode(i - 1);
+
+            // When getting a position for input, ParamMode.Position
+            // Is invalid and should default to ParamMode.Immediate
+            if (isForInput && mode.Equals(IntOp.ParamMode.Position))
+            {
+                mode = IntOp.ParamMode.Immediate;
+            }
+
+            return GetValueAt(_pointer + i, mode);
         }
 
         private long GetParam(int i, IntOp.ParamMode mode)
@@ -114,8 +128,7 @@ namespace IntCode
                 case IntOp.ParamMode.Relative:
                     // Use the value in the position plus relativeBase
                     var relativeLocation = GetMemoryAtLocation(pos) + _relativeBase;
-                    var ret = GetMemoryAtLocation(relativeLocation);
-                    return ret;
+                    return GetMemoryAtLocation(relativeLocation);
 
                 default:
                     throw new Exception("Invalid ParamMode");
@@ -131,7 +144,11 @@ namespace IntCode
         {
             var a = GetParam(1, o);
             var b = GetParam(2, o);
-            var p = GetParam(3, IntOp.ParamMode.Immediate);
+            var p = GetMemoryAtLocation(_pointer + 3);
+            if(o.GetMode(2).Equals(IntOp.ParamMode.Relative))
+            {
+                p += _relativeBase;
+            }
             _memory[p] = a + b;
             _pointer += 4;
         }
@@ -140,7 +157,13 @@ namespace IntCode
         {
             var a = GetParam(1, o);
             var b = GetParam(2, o);
-            var p = GetParam(3, IntOp.ParamMode.Immediate);
+
+            var p = GetMemoryAtLocation(_pointer + 3);
+            if(o.GetMode(2).Equals(IntOp.ParamMode.Relative))
+            {
+                p += _relativeBase;
+            }
+
             _memory[p] = a * b;
             _pointer += 4;
         }
@@ -154,8 +177,6 @@ namespace IntCode
                 return;
             }
 
-
-            // THIS WORKS, TODO: Make it work for everything
             var p = GetMemoryAtLocation(_pointer + 1);
             if(o.GetMode(0).Equals(IntOp.ParamMode.Relative))
             {
@@ -215,7 +236,12 @@ namespace IntCode
         {
             var a = GetParam(1, o);
             var b = GetParam(2, o);
-            var p = GetParam(3, IntOp.ParamMode.Immediate);
+
+            var p = GetMemoryAtLocation(_pointer + 3);
+            if(o.GetMode(2).Equals(IntOp.ParamMode.Relative))
+            {
+                p += _relativeBase;
+            }
 
             _memory[p] = a < b ? 1 : 0;
 
@@ -226,7 +252,11 @@ namespace IntCode
         {
             var a = GetParam(1, o);
             var b = GetParam(2, o);
-            var p = GetParam(3, IntOp.ParamMode.Immediate);
+            var p = GetMemoryAtLocation(_pointer + 3);
+            if(o.GetMode(2).Equals(IntOp.ParamMode.Relative))
+            {
+                p += _relativeBase;
+            }
 
             _memory[p] = a == b ? 1 : 0;
 
