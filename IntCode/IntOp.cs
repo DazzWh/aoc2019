@@ -23,7 +23,7 @@ namespace IntCode
             Position = 0, Immediate = 1, Relative = 2
         }
 
-        public readonly OpCode Code;
+        public  readonly OpCode Code;
         private readonly ParamMode[] _modes;
 
         public IntOp(OpCode code, ParamMode[] modes)

@@ -112,9 +112,10 @@ namespace IntCode
                     return GetMemoryAtLocation(pos);
 
                 case IntOp.ParamMode.Relative:
-                    // Use the value in the position 
+                    // Use the value in the position plus relativeBase
                     var relativeLocation = GetMemoryAtLocation(pos) + _relativeBase;
-                    return GetMemoryAtLocation(relativeLocation);
+                    var ret = GetMemoryAtLocation(relativeLocation);
+                    return ret;
 
                 default:
                     throw new Exception("Invalid ParamMode");
@@ -152,8 +153,16 @@ namespace IntCode
                 _running = false;
                 return;
             }
-            
-            var p = GetParam(1, IntOp.ParamMode.Immediate);
+
+
+            // THIS WORKS, TODO: Make it work for everything
+            var p = GetMemoryAtLocation(_pointer + 1);
+            if(o.GetMode(0).Equals(IntOp.ParamMode.Relative))
+            {
+                p += _relativeBase;
+            }
+
+
             _memory[p] = _inputs.Pop();
             _pointer += 2;
         }
