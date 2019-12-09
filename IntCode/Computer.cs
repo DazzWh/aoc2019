@@ -57,12 +57,7 @@ namespace IntCode
             {
                 // Get the operation at the current position
                 var op = IntOp.ParseFromString(_memory[_pointer].ToString());
-
-                if (_memory[_pointer].ToString() == "1102")
-                {
-
-                }
-
+                
                 // Call the relevant operation
                 // Operations move the position value
                 RunOperation(op);
@@ -83,7 +78,6 @@ namespace IntCode
                 case IntOp.OpCode.Equals: Equals(operation); break;
                 case IntOp.OpCode.MoveRelative: MoveRelative(operation); break;
 
-
                 case IntOp.OpCode.End: 
                     _running = false; 
                     break;
@@ -91,19 +85,6 @@ namespace IntCode
                 default:
                     throw new Exception("Invalid OpCode in operation");
             }
-        }
-
-        private long GetParam(int i, IntOp o)
-        {
-            var mode = o.GetMode(i - 1);
-
-            // If you want the value, just return the value at position 
-            return GetValueAt(_pointer + i, mode);
-        }
-
-        private long GetParam(int i, IntOp.ParamMode mode)
-        {
-            return GetValueAt(_pointer + i, mode);
         }
 
         private long GetValueAt(long pos, IntOp.ParamMode mode)
@@ -128,13 +109,24 @@ namespace IntCode
                     throw new Exception("Invalid ParamMode");
             }
         }
-
         private long GetMemoryAtLocation(long position)
         {
             return _memory.TryGetValue(position, out var value) ? value : 0;
         }
 
-        private void SetMemoryValueAtParam(int i, IntOp o, long value)
+        private long GetParam(int i, IntOp o)
+        {
+            return GetValueAt(_pointer + i, o.GetMode(i - 1));
+        }
+
+        /// <summary>
+        /// Gets the memory location relevant to the parameter and IntOp, and sets it to value
+        /// Setting parameters will never be in ParamMode.Position.
+        /// </summary>
+        /// <param name="i"> The parameter of the operation, [A, B, C] => [1, 2, 3]</param>
+        /// <param name="o"> The operation for the ParamMode </param>
+        /// <param name="value"> The value to set the _memory at the location </param>
+        private void SetParamAt(int i, IntOp o, long value)
         {
             var p = GetMemoryAtLocation(_pointer + i);
             if (o.GetMode(i - 1).Equals(IntOp.ParamMode.Relative))
@@ -149,7 +141,7 @@ namespace IntCode
         {
             var a = GetParam(1, o);
             var b = GetParam(2, o);
-            SetMemoryValueAtParam(3, o, a + b);
+            SetParamAt(3, o, a + b);
 
             _pointer += 4;
         }
@@ -158,7 +150,7 @@ namespace IntCode
         {
             var a = GetParam(1, o);
             var b = GetParam(2, o);
-            SetMemoryValueAtParam(3, o, a * b);
+            SetParamAt(3, o, a * b);
 
             _pointer += 4;
         }
@@ -172,7 +164,7 @@ namespace IntCode
                 return;
             }
 
-            SetMemoryValueAtParam(3, o, _inputs.Pop());
+            SetParamAt(3, o, _inputs.Pop());
             _pointer += 2;
         }
 
@@ -224,7 +216,7 @@ namespace IntCode
         {
             var a = GetParam(1, o);
             var b = GetParam(2, o);
-            SetMemoryValueAtParam(3, o, a < b ? 1 : 0);
+            SetParamAt(3, o, a < b ? 1 : 0);
 
             _pointer += 4;
         }
@@ -233,7 +225,7 @@ namespace IntCode
         {
             var a = GetParam(1, o);
             var b = GetParam(2, o);
-            SetMemoryValueAtParam(3, o,a == b ? 1 : 0);
+            SetParamAt(3, o,a == b ? 1 : 0);
 
             _pointer += 4;
         }
