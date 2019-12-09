@@ -28,6 +28,8 @@
 	Opcode 8 is equals: if the first parameter is equal to the second parameter, it stores 1 in the position given by the third parameter. Otherwise, it stores 0.
 	===
 
+	Opcode 9 adjusts the relative base by the value of its only parameter. The relative base increases (or decreases, if the value is negative) by the value of the parameter.
+
 Parameter modes:
 
 	0 = Position mode
@@ -37,6 +39,14 @@ Parameter modes:
 	1 = Immediate mode
 		"In immediate mode, a parameter is interpreted as a value - 
 		if the parameter is 50, its value is simply 50."
+
+	2 = Reletive Mode
+
+		"Parameters in mode 2, relative mode, behave very similarly to parameters in position mode: the parameter is interpreted as a position. Like position mode, parameters in relative mode can be read from or written to.
+
+		The important difference is that relative mode parameters don't count from address 0. Instead, they count from a value called the relative base. The relative base starts at 0.
+
+		The address a relative mode parameter refers to is itself plus the current relative base. When the relative base is 0, relative mode parameters and position mode parameters with the same value refer to the same address.""
 
 Makeup of an instruction:
 	ABCDE

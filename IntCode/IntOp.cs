@@ -14,12 +14,13 @@ namespace IntCode
             JumpIfFalse = 6,
             LessThan = 7,
             Equals = 8,
+            MoveRelative = 9,
             End = 99
         }
 
         public enum ParamMode
         {
-            Position, Immediate
+            Position = 0, Immediate = 1, Relative = 2
         }
 
         public readonly OpCode Code;
@@ -46,14 +47,7 @@ namespace IntCode
             var modes = new ParamMode[]{0, 0, 0};
             for (var i = 0; i < 3; i++)
             {
-                if (s.ToArray()[i] == '0')
-                {
-                    modes[i] = ParamMode.Position;
-                }
-                else
-                {
-                    modes[i] = ParamMode.Immediate;
-                }
+                modes[i] = (ParamMode) int.Parse(s.Substring(i, 1));
             }
 
             // ABC are read right to left, to correspond to 

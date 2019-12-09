@@ -12,6 +12,8 @@ namespace Day7
             var largest = int.MinValue;
             const string filename = "input.txt";
 
+            // Should output with input.txt 1336480;
+
             foreach (var seq in GetPermutations(new[] { 5, 6, 7, 8, 9 }, 5))
             {
                 var arr = seq.ToArray();

@@ -8,31 +8,36 @@ namespace IntCode
     public class Computer
     {
 
-        private int _pointer; // Position of current operation
-        private Stack<int> _inputs; // Used for Input operation
-        private readonly int[] _memory; // IntCode program that is being run
+        private long _pointer; // Position of current operation
+        private Stack<long> _inputs; // Used for Input operation
+        private Dictionary<long, long> _memory; // IntCode program that is being run
         private bool _running; // If the program is still running
+        private long _relativeBase; // Used for ParamMode.Relative
 
         public bool OutputToConsole = true; // Output writes directly to the console log if true
-        public bool StopAtOutput = false;   // Stops the program at the first output
+        public bool StopAtOutput = false;   // Stops the program when output is given
         public List<string> OutputLog { get; private set; } // Output logs output to this list
 
         public Computer(string fileName)
         {
-            _memory = File.ReadLines(fileName).Single().Split(",").Select(int.Parse).ToArray();
-        }
-        
-        public Computer(string fileName, int[] inputsArray)
-        {
-            _memory = File.ReadLines(fileName).Single().Split(",").Select(int.Parse).ToArray();
-            AddInputs(inputsArray);
+            var input = File.ReadLines(fileName).Single().Split(",").Select(long.Parse).ToArray();
+            InitiateMemory(input);
         }
 
-        public void AddInputs(int[] inputsArray)
+        private void InitiateMemory(IReadOnlyList<long> input)
+        {
+            _memory = new Dictionary<long, long>();
+            for (var i = 0; i < input.Count; i++)
+            {
+                _memory.Add(i, input[i]);
+            }
+        }
+
+        public void AddInputs(long[] inputsArray)
         {
             if (_inputs == null)
             {
-                _inputs = new Stack<int>(inputsArray.Reverse());
+                _inputs = new Stack<long>(inputsArray.Reverse());
             }
             else
             {
@@ -65,45 +70,60 @@ namespace IntCode
             {
                 case IntOp.OpCode.Add: Add(operation); break;
                 case IntOp.OpCode.Multiply: Multiply(operation); break;
-                case IntOp.OpCode.Input: Input(); break;
+                case IntOp.OpCode.Input: Input(operation); break;
                 case IntOp.OpCode.Output: Output(operation); break;
                 case IntOp.OpCode.JumpIfTrue: JumpIfTrue(operation); break;
                 case IntOp.OpCode.JumpIfFalse: JumpIfFalse(operation); break;
                 case IntOp.OpCode.LessThan: LessThan(operation); break;
                 case IntOp.OpCode.Equals: Equals(operation); break;
-                case IntOp.OpCode.End: _running = false; break;
+                case IntOp.OpCode.MoveRelative: MoveRelative(operation); break;
+
+
+                case IntOp.OpCode.End: 
+                    _running = false; 
+                    break;
 
                 default:
                     throw new Exception("Invalid OpCode in operation");
             }
         }
 
-        private int GetParam(int i, IntOp o)
+        private long GetParam(int i, IntOp o)
         {
             return GetValueAt(_pointer + i, o.GetMode(i - 1));
         }
 
-        private int GetParam(int i, IntOp.ParamMode mode)
+        private long GetParam(int i, IntOp.ParamMode mode)
         {
             return GetValueAt(_pointer + i, mode);
         }
 
-        private int GetValueAt(int pos, IntOp.ParamMode mode)
+        private long GetValueAt(long pos, IntOp.ParamMode mode)
         {
             switch (mode)
             {
                 case IntOp.ParamMode.Position:
                     // Use the value in the position as a position for the return value
-                    var valueLocation = _memory[pos];
-                    return _memory[valueLocation];
+                    var valueLocation = GetMemoryAtLocation(pos);
+                    return GetMemoryAtLocation(valueLocation);
 
                 case IntOp.ParamMode.Immediate:
                     // Return the value in the position
-                    return _memory[pos];
+                    return GetMemoryAtLocation(pos);
+
+                case IntOp.ParamMode.Relative:
+                    // Use the value in the position 
+                    var relativeLocation = GetMemoryAtLocation(pos) + _relativeBase;
+                    return GetMemoryAtLocation(relativeLocation);
 
                 default:
                     throw new Exception("Invalid ParamMode");
             }
+        }
+
+        private long GetMemoryAtLocation(long position)
+        {
+            return _memory.TryGetValue(position, out var value) ? value : 0;
         }
 
         private void Add(IntOp o)
@@ -124,7 +144,7 @@ namespace IntCode
             _pointer += 4;
         }
 
-        private void Input()
+        private void Input(IntOp o)
         {
             // If there is no inputs we need to wait until there is more
             if (_inputs.Count == 0)
@@ -132,9 +152,9 @@ namespace IntCode
                 _running = false;
                 return;
             }
-
-            // Skip GetParam as input is always immediate mode
-            _memory[_memory[_pointer + 1]] = _inputs.Pop();
+            
+            var p = GetParam(1, IntOp.ParamMode.Immediate);
+            _memory[p] = _inputs.Pop();
             _pointer += 2;
         }
 
@@ -202,6 +222,14 @@ namespace IntCode
             _memory[p] = a == b ? 1 : 0;
 
             _pointer += 4;
+        }
+
+        private void MoveRelative(IntOp o)
+        {
+            var a = GetParam(1, o);
+            _relativeBase += a;
+            
+            _pointer += 2;
         }
     }
 }
