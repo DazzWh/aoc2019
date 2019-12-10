@@ -5,7 +5,7 @@ using static System.IO.File;
 
 namespace Day3
 {
-    internal class Program
+    class Day3
     {
         static void Main( string[] args )
         {
@@ -74,7 +74,7 @@ namespace Day3
         }
     }
 
-    internal class Point
+    public class Point
     {
         public int X;
         public int Y;
