@@ -20,10 +20,19 @@ namespace Day11
             var board = new Dictionary<Tuple<long, long>, int>();
 
             // First input
-            cpu.AddInput( 0 );
+            cpu.AddInput( 1 );
 
-            // 10143
-            // trying 10142 NOPE
+            // 2883 part 1
+            
+            /* Part 2
+
+                 1    1111 111   11  111  1     11  1111
+                 1    1    1  1 1  1 1  1 1    1  1    1
+                 1    111  1  1 1    1  1 1    1      1
+                 1    1    111  1    111  1    1 11  1
+                 1    1    1    1  1 1    1    1  1 1
+                 1111 1111 1     11  1    1111  111 1111
+             */
 
             while (true)
             {
@@ -39,7 +48,6 @@ namespace Day11
                 // Second is where to turn
                 cpu.Run();
                 robo.Turn(int.Parse(cpu.OutputLog.Last()));
-
 
                 // Input what the position under the robot is
                 p = new Tuple<long, long>(robo.X, robo.Y);

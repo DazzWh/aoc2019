@@ -170,7 +170,7 @@ namespace IntCode
                 return;
             }
 
-            SetParamAt(3, o, _inputs.Pop());
+            SetParamAt(1, o, _inputs.Pop());
             _pointer += 2;
         }
 
