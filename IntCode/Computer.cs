@@ -79,7 +79,8 @@ namespace IntCode
                 case IntOp.OpCode.MoveRelative: MoveRelative(operation); break;
 
                 case IntOp.OpCode.End: 
-                    _running = false; 
+                    _running = false;
+                    OutputLog.Add("Complete");
                     break;
 
                 default:

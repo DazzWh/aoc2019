@@ -6,11 +6,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="testinput.txt">
+    <ProjectReference Include="..\Day3\Day3.csproj" />
+    <ProjectReference Include="..\IntCode\IntCode.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="test.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="input.txt">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
