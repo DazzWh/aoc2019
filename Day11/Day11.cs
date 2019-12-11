@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Runtime.InteropServices;
 using IntCode;
-using Day3;
 
 
 namespace Day11
@@ -21,53 +17,57 @@ namespace Day11
             };
 
             var robo = new Robot();
-            var board = new Dictionary<Point, long>();
+            var board = new Dictionary<Tuple<long, long>, int>();
 
             // First input
-            cpu.AddInputs(new long[] { 0 });
+            cpu.AddInput( 0 );
+
+            // 10143
+            // trying 10142 NOPE
 
             while (true)
             {
                 cpu.Run();
-                if (cpu.OutputLog.Single().Equals("Complete"))
+
+                if (cpu.OutputLog.Last().Equals("Complete"))
                     break;
 
                 // First output is what to paint
-                var p = new Point(robo.X, robo.Y);
-                board[p] = int.Parse(cpu.OutputLog.Single());
-                
+                var p = new Tuple<long, long>(robo.X, robo.Y);
+                board[p] = int.Parse(cpu.OutputLog.First());
+
                 // Second is where to turn
                 cpu.Run();
-                robo.Turn(int.Parse(cpu.OutputLog.Single()));
+                robo.Turn(int.Parse(cpu.OutputLog.Last()));
+
 
                 // Input what the position under the robot is
-                p = new Point(robo.X, robo.Y);
-                cpu.AddInputs(board.ContainsKey(p) ? new[] { board[p] } : new long[] {0});
+                p = new Tuple<long, long>(robo.X, robo.Y);
+                cpu.AddInput(board.ContainsKey(p) ?  board[p] :  0 );
             }
 
             // Print the points hit
             board.Keys.ToList().ForEach(Console.WriteLine);
             Console.Out.WriteLine($"Count: { board.Count }");
 
-            // Print the board
             PrintBoard(board);
         }
 
-        private static void PrintBoard(Dictionary<Point, long> board)
+        private static void PrintBoard(IReadOnlyDictionary<Tuple<long, long>, int> board)
         {
-            var minX = board.Min(x => x.Key.X);
-            var minY = board.Min(y => y.Key.Y);
-            var maxX = board.Max(x => x.Key.X);
-            var maxY = board.Max(y => y.Key.Y);
+            var minX = board.Min(x => x.Key.Item1);
+            var minY = board.Min(y => y.Key.Item2);
+            var maxX = board.Max(x => x.Key.Item1);
+            var maxY = board.Max(y => y.Key.Item2);
 
-            for (var y = minY; y < maxY ; y++)
+            for (var y = maxY; y >= minY ; y--)
             {
                 var line = "";
-                for (var x = minX; x < maxX; x++)
+                for (var x = minX; x <= maxX; x++)
                 {
-                    if (board.ContainsKey(new Point(x, y)) && board[new Point(x, y)].Equals(1))
+                    if (board.ContainsKey(new Tuple<long, long>(x, y)) && board[new Tuple<long, long>(x, y)].Equals(1))
                     {
-                        line += board[new Point(x, y)];
+                        line += board[new Tuple<long, long>(x, y)];
                     }
                     else
                     {
@@ -90,7 +90,6 @@ namespace Day11
         private Direction dir;
         public int X;
         public int Y;
-        
 
         public Robot()
         {
@@ -102,11 +101,11 @@ namespace Day11
         {
             if (d == 0)
             {
-                dir += 1;
+                dir -= 1;
             }
             else
             {
-                dir -= 1;
+                dir += 1;
             }
 
             if (dir < Direction.Left) dir = Direction.Down;

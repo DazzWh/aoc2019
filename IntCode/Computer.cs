@@ -33,6 +33,11 @@ namespace IntCode
             }
         }
 
+        public void AddInput(long inputs)
+        {
+            AddInputs(new [] { inputs });
+        }
+
         public void AddInputs(long[] inputsArray)
         {
             if (_inputs == null)
