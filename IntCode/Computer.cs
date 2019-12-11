@@ -33,6 +33,11 @@ namespace IntCode
             }
         }
 
+        public void AddInput(long inputs)
+        {
+            AddInputs(new [] { inputs });
+        }
+
         public void AddInputs(long[] inputsArray)
         {
             if (_inputs == null)
@@ -79,7 +84,8 @@ namespace IntCode
                 case IntOp.OpCode.MoveRelative: MoveRelative(operation); break;
 
                 case IntOp.OpCode.End: 
-                    _running = false; 
+                    _running = false;
+                    OutputLog.Add("Complete");
                     break;
 
                 default:
@@ -164,7 +170,7 @@ namespace IntCode
                 return;
             }
 
-            SetParamAt(3, o, _inputs.Pop());
+            SetParamAt(1, o, _inputs.Pop());
             _pointer += 2;
         }
 

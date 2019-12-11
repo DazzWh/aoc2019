@@ -6,8 +6,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="testinput.txt">
+    <ProjectReference Include="..\IntCode\IntCode.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="test.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="input.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
