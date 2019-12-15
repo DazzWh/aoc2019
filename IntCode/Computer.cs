@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 
 namespace IntCode
 {
@@ -13,10 +14,15 @@ namespace IntCode
         private Dictionary<long, long> _memory; // IntCode program that is being run
         private bool _running; // If the program is still running
         private long _relativeBase; // Used for ParamMode.Relative
+        private const string EndMessage = "Complete";
 
         public bool OutputToConsole = true; // Output writes directly to the console log if true
         public bool StopAtOutput = false;   // Stops the program when output is given
         public List<string> OutputLog { get; private set; } // Output logs output to this list
+
+        public int LastOutput => int.Parse(OutputLog.Last());
+
+        public bool ProgramComplete => OutputLog.Last().Equals(EndMessage);
 
         public Computer(string fileName)
         {
@@ -85,7 +91,7 @@ namespace IntCode
 
                 case IntOp.OpCode.End: 
                     _running = false;
-                    OutputLog.Add("Complete");
+                    OutputLog.Add(EndMessage);
                     break;
 
                 default:

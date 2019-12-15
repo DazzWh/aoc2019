@@ -23,7 +23,7 @@ namespace Day11
             cpu.AddInput( 1 );
 
             // 2883 part 1
-            
+
             /* Part 2
 
                  1    1111 111   11  111  1     11  1111
@@ -55,8 +55,7 @@ namespace Day11
             }
 
             // Print the points hit
-            board.Keys.ToList().ForEach(Console.WriteLine);
-            Console.Out.WriteLine($"Count: { board.Count }");
+            Console.Out.WriteLine($"Count: { board.Distinct().Count() }");
 
             PrintBoard(board);
         }
