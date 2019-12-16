@@ -11,7 +11,7 @@ namespace IntCode
 
         private long _pointer; // Position of current operation
         private Stack<long> _inputs; // Used for Input operation
-        private Dictionary<long, long> _memory; // IntCode program that is being run
+        public Dictionary<long, long> _memory; // IntCode program that is being run
         private bool _running; // If the program is still running
         private long _relativeBase; // Used for ParamMode.Relative
         private const string EndMessage = "Complete";
@@ -22,7 +22,8 @@ namespace IntCode
 
         public int LastOutput => int.Parse(OutputLog.Last());
 
-        public bool ProgramComplete => OutputLog.Last().Equals(EndMessage);
+        public bool ProgramComplete => OutputLog.Count != 0 && OutputLog.Last().Equals(EndMessage);
+        public bool WantsInput = false;
 
         public Computer(string fileName)
         {
@@ -170,11 +171,14 @@ namespace IntCode
         private void Input(IntOp o)
         {
             // If there is no inputs we need to wait until there is more
-            if (_inputs.Count == 0)
+            if (_inputs == null || _inputs.Count == 0)
             {
+                WantsInput = true;
                 _running = false;
                 return;
             }
+
+            WantsInput = false;
 
             SetParamAt(1, o, _inputs.Pop());
             _pointer += 2;

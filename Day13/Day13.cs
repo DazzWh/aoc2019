@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO.Pipes;
 using System.Linq;
 using System.Reflection.Metadata;
@@ -18,9 +19,10 @@ namespace Day13
             };
 
             var blocks = new List<(int x, int y, int id)>();
-
+            
             cpu.Run();
-            while (!cpu.ProgramComplete)
+
+            while (!cpu.WantsInput)
             {
                 var x  = cpu.LastOutput;
                 cpu.Run();
@@ -32,7 +34,15 @@ namespace Day13
                 blocks.Add((x, y, id));
             }
 
-            Console.WriteLine(blocks.Count(blk => blk.id.Equals(2)));
+            while (true)
+            {
+                
+                cpu.Run();
+                Console.WriteLine(blocks.First(b => b.id == 4).y);
+            }
+
+            
+
         }
     }
 }
