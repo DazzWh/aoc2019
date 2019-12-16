@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -19,18 +18,30 @@ namespace Day12
             var velocity = new List<Vector3>(planets);
             velocity = velocity.Select(x => new Vector3(0,0,0)).ToList();
 
-            foreach (var i in Enumerable.Range(0, 1000))
+            var states = new List<List<Vector3>>();
+
+            var i = 0;
+            while (true)
             {
                 var gravity = GetGravity(planets);
                 planets  = AddVectorLists(planets, gravity);
                 planets  = AddVectorLists(planets, velocity);
                 velocity = AddVectorLists(velocity, gravity);
-                
+
+                var state = new List<Vector3>(planets);
+                state.AddRange(velocity);
+
+                foreach (var s in states)
+                {
+                    if (!s.SequenceEqual(state)) continue;
+                    Console.WriteLine(i);
+                    return;
+                }
+
+                states.Add(state);
+                i++;
             }
 
-            Console.WriteLine(
-                    planets.Select((t, i) => AbsSumOfVector(t) * AbsSumOfVector(velocity[i])).Sum()
-                );
         }
         
         private static Vector3 ParsePlanet(string line)
@@ -75,7 +86,7 @@ namespace Day12
             return a > b ? -1 : 1;
         }
 
-        private static List<Vector3> AddVectorLists(List<Vector3> v1, List<Vector3> v2)
+        private static List<Vector3> AddVectorLists(IReadOnlyList<Vector3> v1, IReadOnlyList<Vector3> v2)
         {
             var l = new List<Vector3>();
 
